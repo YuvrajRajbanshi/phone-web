@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import bodyParser from "express";
 import userRouter from "./Routes/user.js";
 import productsRouter from "./Routes/product.js";
-// import cartRouter from "./Routes/cart.js";
-
+import cartRouter from "./Routes/cart.js";
+import addressRouter from "./Routes/address.js";
 const app = express();
 app.use(bodyParser.json());
 
@@ -20,7 +20,10 @@ app.use("/api/user", userRouter);
 app.use("/api/product", productsRouter);
 
 // All about cart yar
-// app.use("/api/cart", cartRouter);
+app.use("/api/cart", cartRouter);
+
+// address router
+app.use("/api/address", addressRouter);
 
 mongoose
   .connect(
