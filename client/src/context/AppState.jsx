@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 import AppContext from "./AppContext";
@@ -6,6 +6,8 @@ import AppContext from "./AppContext";
 const AppState = (props) => {
   const data = 10;
   const url = "http://localhost:1000/api";
+
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -15,13 +17,16 @@ const AppState = (props) => {
         },
         withCredentials: true,
       });
-      console.log(api.data);
+      setProducts(api.data.products);
+      console.log(api.data.products);
     };
 
     fetchProduct();
-  });
+  }, []);
   return (
-    <AppContext.Provider value={{ data }}>{props.children}</AppContext.Provider>
+    <AppContext.Provider value={{ products }}>
+      {props.children}
+    </AppContext.Provider>
   );
 };
 
