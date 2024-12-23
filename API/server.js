@@ -5,8 +5,16 @@ import userRouter from "./Routes/user.js";
 import productsRouter from "./Routes/product.js";
 import cartRouter from "./Routes/cart.js";
 import addressRouter from "./Routes/address.js";
+import cors from "cors";
 const app = express();
 app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: true,
+    method: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 // user Router
 app.get("/", (req, res) => {
