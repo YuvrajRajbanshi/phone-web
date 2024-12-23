@@ -12,6 +12,7 @@ const AppState = (props) => {
   const [token, setToken] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
+  const [user, setUser] = useState();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -24,10 +25,22 @@ const AppState = (props) => {
       setProducts(api.data.products);
       // console.log(api.data.products);
       setFilteredData(api.data.products);
+      userProfile();
     };
 
     fetchProduct();
   }, [token]);
+
+  useEffect(() => {
+    // setToken(localStorage.getItem("token"));
+    let lstoken = localStorage.getItem("token");
+
+    if (lstoken) {
+      setToken(lstoken);
+      setIsAuthenticated(true);
+    }
+    console.log("Token", lstoken);
+  }, []);
 
   const register = async (name, email, password) => {
     const api = await axios.post(
@@ -57,6 +70,8 @@ const AppState = (props) => {
 
     return api.data;
   };
+
+  // login user
   const login = async (email, password) => {
     const api = await axios.post(
       `${url}/user/login`,
@@ -87,8 +102,38 @@ const AppState = (props) => {
     return api.data;
   };
 
-  // register();
+  // logout user
 
+  const logout = async () => {
+    setIsAuthenticated(false);
+    setToken(" ");
+    localStorage.removeItem("token");
+    toast.success("Logout successfully.....!", {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
+
+  // user profile
+
+  const userProfile = async () => {
+    const api = await axios.get(`${url}/user/profile`, {
+      headers: {
+        "Content-Type": "application/json",
+        Auth: token,
+      },
+      withCredentials: true,
+    });
+    console.log("User Profile" + api);
+    setUser(api.data.user);
+  };
   return (
     <AppContext.Provider
       value={{
@@ -101,6 +146,9 @@ const AppState = (props) => {
         setIsAuthenticated,
         filteredData,
         setFilteredData,
+        logout,
+        userProfile,
+        user,
       }}
     >
       {props.children}
