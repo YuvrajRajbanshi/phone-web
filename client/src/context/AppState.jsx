@@ -13,6 +13,8 @@ const AppState = (props) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
   const [user, setUser] = useState();
+  const [cart, setCart] = useState([]);
+  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -29,7 +31,8 @@ const AppState = (props) => {
     };
 
     fetchProduct();
-  }, [token]);
+    userCart();
+  }, [token, reload]);
 
   useEffect(() => {
     // setToken(localStorage.getItem("token"));
@@ -39,7 +42,7 @@ const AppState = (props) => {
       setToken(lstoken);
       setIsAuthenticated(true);
     }
-    console.log("Token", lstoken);
+    // console.log("Token", lstoken);
   }, []);
 
   const register = async (name, email, password) => {
@@ -131,9 +134,130 @@ const AppState = (props) => {
       },
       withCredentials: true,
     });
-    console.log("User Profile" + api);
+    // console.log("User Profile", api);
     setUser(api.data.user);
   };
+
+  const addToCart = async (productId, title, price, qty, imgSrc) => {
+    const api = await axios.post(
+      `${url}/cart/add`,
+      { productId, title, price, qty, imgSrc },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Auth: token,
+        },
+        withCredentials: true,
+      }
+    );
+    setReload(!reload);
+    // console.log("My cart ", api);
+    toast.success(api.data.message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
+
+  // user cart
+
+  const userCart = async () => {
+    const api = await axios.get(`${url}/cart/user`, {
+      headers: {
+        "Content-Type": "application/json",
+        Auth: token,
+      },
+      withCredentials: true,
+    });
+
+    // console.log("user cart", api);
+    // setUser();
+    setCart(api.data.cart);
+  };
+
+  // --qty
+  const decreaseQty = async (productId, qty) => {
+    const api = await axios.post(
+      `${url}/cart/--qty`,
+      { productId, qty },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Auth: token,
+        },
+        withCredentials: true,
+      }
+    );
+
+    setReload(!reload);
+
+    toast.success(api.data.message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
+
+  const removeFromCart = async (productId) => {
+    const api = await axios.delete(`${url}/cart/remove/${productId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Auth: token,
+      },
+      withCredentials: true,
+    });
+
+    setReload(!reload);
+
+    toast.success(api.data.message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
+  const clearCart = async () => {
+    const api = await axios.delete(`${url}/cart/clear`, {
+      headers: {
+        "Content-Type": "application/json",
+        Auth: token,
+      },
+      withCredentials: true,
+    });
+
+    setReload(!reload);
+    console.log("Clear cart", api);
+
+    toast.success(api.data.message, {
+      position: "top-right",
+      autoClose: 1500,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -149,6 +273,11 @@ const AppState = (props) => {
         logout,
         userProfile,
         user,
+        addToCart,
+        cart,
+        decreaseQty,
+        removeFromCart,
+        clearCart,
       }}
     >
       {props.children}

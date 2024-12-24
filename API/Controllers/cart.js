@@ -52,7 +52,7 @@ export const removeProductFromCart = async (req, res) => {
 
 //clear the cart
 export const clearCart = async (req, res) => {
-  const userId = "67405bda8d17481e8b0b1739";
+  const userId = req.user;
 
   let cart = await Cart.findOne({ userId });
 
